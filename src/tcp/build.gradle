@@ -1,0 +1,79 @@
+//bulid.gradle for the tcp version 
+// set as java application
+//should run w/ format: 
+//  gradle runServer −Pport=port
+//  gradle runClient −Pport=port −Phost=hostIP
+//more specifically gradle runServer -Pport=8080 -Phost=localhost
+//should also run with default values of 8080 and localhost respectively
+
+apply plugin: 'application'
+def PORT='8080'
+def HOST='localhost'
+//define main class
+mainClassName = 'Concentration'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.json', name: 'json', version: '20200518'
+}
+
+task Gui(type: JavaExec) {
+  group 'gui'
+  description 'Displays a GUI for a game of concentration'
+
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'Assignment3Starter.ClientGui'
+  standardInput = System.in
+}
+
+//  gradle runClient −Pport=8080 −Phost=localhost
+////////////////////////////////////////////////////////runClient///////////////////////////////////////////////////////////////////////////////////
+task runClient(type: JavaExec) {
+  group 'gui'
+  description 'Starts up the Client'
+ classpath = sourceSets.main.runtimeClasspath
+
+  main = 'Assignment3Starter.ClientGui'
+  standardInput = System.in
+
+  if (project.hasProperty("port") && project.hasProperty("host")) {
+    args(project.getProperty('port'), project.getProperty('host'));
+    //case: only first arg is given
+  } else if (project.hasProperty("port")){
+    args( 
+      project.getProperty('port'),
+      HOST //using a gradle variable
+    );
+  }
+  //case: only the last argument is given, not the first argument, so add in 10 as a default value for arg 1
+  else if(project.hasProperty("host")){
+    args( PORT,
+     project.getProperty('host')
+     );//ends args
+  }else{
+   args PORT
+   args HOST
+  }
+}//ends runClient
+
+////////////////////////////////////////////////////////runServer///////////////////////////////////////////////////////////////////////////////////
+//gradle runServer −Pport=8080
+task runServer(type: JavaExec) {
+  group 'server'
+  description 'Starts up the Server'
+ classpath = sourceSets.main.runtimeClasspath
+
+  main = 'Assignment3Starter.Server'
+  standardInput = System.in
+   if (project.hasProperty("port")){
+    args(project.getProperty('port'));
+  }
+  //case: only the last argument is given, not the first argument, so add in 10 as a default value for arg 1
+  else{
+    args(PORT);//ends args
+  }
+}//ends runClient
